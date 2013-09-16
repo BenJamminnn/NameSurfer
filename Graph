@@ -1,0 +1,90 @@
+/* This class represents the canvas on which the graph of
+ * names is drawn. This class is responsible for updating
+ * (redrawing) the graphs whenever the list of entries changes or the window is resized.
+ */
+
+import acm.graphics.*;
+import java.awt.event.*;
+
+public class NameSurferGraph extends GCanvas
+	implements NameSurferConstants, ComponentListener {
+
+	/**
+	* Creates a new NameSurferGraph object that displays the data.
+	*/
+	
+	private NameSurferMain main;
+	
+	public NameSurferGraph(NameSurferMain main) {
+		addComponentListener(this);
+		this.main = main;
+	
+	}
+
+	public int[] rankArray() {
+		int[] array = new int[NDECADES];
+		for(int i = 0; i < NDECADES; i++) {
+			array[i] = this.lastEntry().getRank(i);
+		}
+		return array;
+	}
+	
+	private NameSurferEntry lastEntry() {
+		return this.main.entry;
+	}
+	
+	public void addEntryToGraph() {
+		int[] array = rankArray();
+		int dx = getWidth()/11;
+		for(int i = 0; i < array.length - 1; i++) {
+			String labelForGLabel = "";
+			GLine line = new GLine(i * dx, array[i] + GRAPH_MARGIN_SIZE , (i+1) * dx, array[i + 1] + GRAPH_MARGIN_SIZE);
+			add(line);
+			if(array[i] == 0) {
+				labelForGLabel = lastEntry().getName() + " *";
+			}
+			else if(array[i] != 0) {
+				labelForGLabel = lastEntry().getName() + " " + array[i];
+			}
+			GLabel label = new GLabel(labelForGLabel, i * dx , array[i] + GRAPH_MARGIN_SIZE);
+			add(label);
+		}
+	}
+	
+	/**
+	* Updates the display image by deleting all the graphical objects
+	* from the canvas and then reassembling the display according to
+	* the list of entries. Your application must call update after
+	* calling either clear or addEntry; update is also called whenever
+	* the size of the canvas changes.
+	*/
+	public void update() {
+		removeAll();
+		//build the top and bottom horizontal lines.
+		GLine topHorizontal = new GLine( 0, 20 , getWidth() , 20);
+		GLine bottomHorizontal = new GLine(0 , getHeight() - 20, getWidth() , getHeight() -20);
+		add(topHorizontal);
+		add(bottomHorizontal);
+		//build 11 equal spaces in the window.
+		int dx = getWidth()/11;
+		for(int i = 0; i < 11; i++) {
+			GLine line = new GLine( (i * dx) , 0 , (i * dx) , getHeight());
+			add(line);
+			String value = "19" + i + "0";
+			if(i == 10) {
+				value = "2000";
+			}
+			GLabel year = new GLabel(value , i * dx , getHeight() - 10);  //add GLabels to the margins
+			add(year);
+		}
+	}
+	
+	
+	
+	
+	/* Implementation of the ComponentListener interface */
+	public void componentHidden(ComponentEvent e) { }
+	public void componentMoved(ComponentEvent e) { }
+	public void componentResized(ComponentEvent e) { update(); }
+	public void componentShown(ComponentEvent e) { }
+}
