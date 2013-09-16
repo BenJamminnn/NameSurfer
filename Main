@@ -1,0 +1,75 @@
+import javax.swing.*;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
+import acm.program.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+
+
+
+public class NameSurferMain extends ConsoleProgram implements CaretListener {
+	
+	
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	//private i vars 
+	private NameSurferGraph graph;
+	public NameSurferEntry entry;
+	private JTextField nameTextField = new JTextField("Enter a name here");	
+	private boolean shouldClearTextField = true;
+	
+	
+	public void run() {
+		initButtons();
+		addActionListeners();
+		nameTextField.addKeyListener(this);
+		nameTextField.addCaretListener(this);
+		graph = new NameSurferGraph(this);
+		add(graph);
+	}
+    //Creates and initializes buttons, labels, and textFields.
+	private void initButtons() {
+		add(new JLabel ("NAME") , SOUTH);
+		add( nameTextField , SOUTH);
+		add(new JButton("Graph") , SOUTH);
+		add(new JButton("Clear") , SOUTH);
+		
+	}
+	
+	public void caretUpdate(CaretEvent e) {
+		if(shouldClearTextField) {
+			nameTextField.setText("");
+			shouldClearTextField = false;
+		}	
+	}		
+	
+	public void actionPerformed(ActionEvent e) {
+		if(e.getActionCommand().equals("Graph")) {
+			printName();
+		}
+		else if(e.getActionCommand().equals("Clear")) {
+			this.graph.update();
+		}
+	}
+	
+	public void keyTyped(KeyEvent e) {
+		if(e.getKeyChar() == '\n') {
+			printName();
+		}
+	}
+	//Associates the nameTextField with the key of the HashMap. Displays the object in text, calls addEntryToGraph.
+	private void printName() {
+		String fieldString = nameTextField.getText();
+		entry = NameSurferDataBase.findEntry(fieldString);
+		if(entry != null) {
+			println(entry.toString(fieldString));
+			this.graph.addEntryToGraph();
+		} else {
+			println("something is wrong");
+		}
+	}
+	
+}
